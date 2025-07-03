@@ -18,6 +18,10 @@ public class GameLogic : MonoBehaviour
     public Text[] time;
     public AudioSource gameSound;
     public SoundScript sound;
+    public GameObject coin;
+    private CubeScript _CubeScript;
+
+
 
     public CanvasGroup cg;
 
@@ -30,6 +34,7 @@ public class GameLogic : MonoBehaviour
             cg = GameOverScreen.AddComponent<CanvasGroup>();
         }
         sound = GameObject.FindGameObjectWithTag("Sound").GetComponent<SoundScript>();
+        _CubeScript = GameObject.FindGameObjectWithTag("Cube").GetComponent<CubeScript>();
 
         // Hide & deactivate on start
 
@@ -96,6 +101,8 @@ public class GameLogic : MonoBehaviour
         GameOverScreen.SetActive(false);
         GameScreen.SetActive(true);
         startTime = Time.time;
+
+        StartCoroutine(_CubeScript.SpawnWithDelay(1));
     }
 
     public void gameOver()
@@ -144,5 +151,7 @@ public class GameLogic : MonoBehaviour
         GameOverScreen.SetActive(false);
         GameScreen.SetActive(true);
         startTime = Time.time;
+
+        StartCoroutine(_CubeScript.SpawnWithDelay(1));
     }
 }

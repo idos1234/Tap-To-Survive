@@ -2460,7 +2460,7 @@ GameObject:
   - component: {fileID: 1344367045}
   m_Layer: 0
   m_Name: Square
-  m_TagString: Untagged
+  m_TagString: Cube
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2601,6 +2601,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ab79fa7b10060394da3134f5cc71851e, type: 3}
   - {fileID: 21300000, guid: cd73f97db2c78e444a7654d4deda5f4a, type: 3}
   - {fileID: 21300000, guid: 4a1e1dfa0fe9715488672f6833c2778a, type: 3}
+  coin: {fileID: 1727064797276243891, guid: 02c8c999b8b060f41a2d183687a8adb5, type: 3}
 --- !u!50 &1344367045
 Rigidbody2D:
   serializedVersion: 4
@@ -2983,6 +2984,7 @@ MonoBehaviour:
   - {fileID: 1064950729}
   gameSound: {fileID: 1176157808}
   sound: {fileID: 0}
+  coin: {fileID: 1727064797276243891, guid: 02c8c999b8b060f41a2d183687a8adb5, type: 3}
   cg: {fileID: 0}
 --- !u!4 &1631500458
 Transform:

@@ -10,6 +10,7 @@ public class CubeScript : MonoBehaviour
     private GameLogic _GameLogic;
     public SpriteRenderer squareSpriteRenderer;
     public List<Sprite> sprites;
+    public GameObject coin;
 
     // Start is called before the first frame update
     void Start()
@@ -106,6 +107,29 @@ public class CubeScript : MonoBehaviour
             _GameLogic.gameOver();
 
             Destroy(collision.gameObject);
+        } else if (collision.gameObject.name == "Coin(Clone)")
+        {
+            Debug.Log("Got Coin");
+
+            StartCoroutine(SpawnWithDelay(1));
+
+            Destroy(collision.gameObject);
         }
+    }
+
+    public IEnumerator SpawnWithDelay(float delay)
+    {
+        int screenWidth = Screen.width;
+        int screenHeight = Screen.height;
+
+        float randomX = Random.Range(0.5f, screenWidth - 0.5f);
+        float randomY = Random.Range(0.5f, screenHeight - 0.5f);
+
+        Vector3 worldPos = Cam.ScreenToWorldPoint(new Vector3(randomX, randomY, 0));
+        worldPos.z = 0;
+
+        // Wait for 2 seconds
+        yield return new WaitForSeconds(delay);
+        Instantiate(coin, worldPos, Quaternion.identity);
     }
 }
