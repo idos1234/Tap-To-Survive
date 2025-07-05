@@ -41,6 +41,10 @@ public class SkinGridScript : MonoBehaviour
         {
             GameObject cell = Instantiate(Skin, gridParent);
             string spriteName = PlayerPrefs.GetString("Skin");
+            if (spriteName == "")
+            {
+                spriteName = "Default Skin";
+            }
             if(sprite.name == spriteName)
                 currentSelectedCell = cell;
 

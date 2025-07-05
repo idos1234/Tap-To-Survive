@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class CubeScript : MonoBehaviour
 {
@@ -11,6 +14,7 @@ public class CubeScript : MonoBehaviour
     public SpriteRenderer squareSpriteRenderer;
     public List<Sprite> sprites;
     public GameObject coin;
+    public Text numberOfCoins;
 
     // Start is called before the first frame update
     void Start()
@@ -109,6 +113,7 @@ public class CubeScript : MonoBehaviour
             Destroy(collision.gameObject);
         } else if (collision.gameObject.name == "Coin(Clone)")
         {
+            numberOfCoins.text = (Int32.Parse(numberOfCoins.text) + 1).ToString();
             Debug.Log("Got Coin");
 
             StartCoroutine(SpawnWithDelay(1));
