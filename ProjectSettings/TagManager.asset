@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Logic
   - Sound
+  - Cube
+  - Counting
   layers:
   - Default
   - TransparentFX

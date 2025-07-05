@@ -18,6 +18,12 @@ public class GameLogic : MonoBehaviour
     public Text[] time;
     public AudioSource gameSound;
     public SoundScript sound;
+    public GameObject coin;
+    private CubeScript _CubeScript;
+    private CountingAnimation _CountingAnimation;
+    public Text SumCoins;
+
+
 
     public CanvasGroup cg;
 
@@ -30,9 +36,12 @@ public class GameLogic : MonoBehaviour
             cg = GameOverScreen.AddComponent<CanvasGroup>();
         }
         sound = GameObject.FindGameObjectWithTag("Sound").GetComponent<SoundScript>();
+        _CubeScript = GameObject.FindGameObjectWithTag("Cube").GetComponent<CubeScript>();
+        _CountingAnimation = GameObject.FindGameObjectWithTag("Counting").GetComponent<CountingAnimation>();
 
         // Hide & deactivate on start
 
+        SumCoins.text = PlayerPrefs.GetInt("Coins").ToString();
         cg.alpha = 0f;
         BackHome();
     }
@@ -96,6 +105,8 @@ public class GameLogic : MonoBehaviour
         GameOverScreen.SetActive(false);
         GameScreen.SetActive(true);
         startTime = Time.time;
+
+        StartCoroutine(_CubeScript.SpawnWithDelay(1));
     }
 
     public void gameOver()
@@ -106,6 +117,7 @@ public class GameLogic : MonoBehaviour
         GameScreen.SetActive(false);
         StartCoroutine(FadeIn());
         Square.position = Vector3.zero;
+        _CountingAnimation.StartCounting();
     }
     private IEnumerator FadeIn()
     {
@@ -144,5 +156,7 @@ public class GameLogic : MonoBehaviour
         GameOverScreen.SetActive(false);
         GameScreen.SetActive(true);
         startTime = Time.time;
+
+        StartCoroutine(_CubeScript.SpawnWithDelay(1));
     }
 }
