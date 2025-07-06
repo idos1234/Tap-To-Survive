@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,7 +9,7 @@ public class SkinGridScript : MonoBehaviour
 {
     public GameObject Skin;
     public Transform gridParent;
-    public List<Sprite> sprites;
+    public List<SkinData> skins;
     public GridLayoutGroup gridLayoutGroup;
     public GameObject ListScreen;
     public GameObject GameScreen;
@@ -30,29 +32,56 @@ public class SkinGridScript : MonoBehaviour
         }
         cellSize = (size - 40) / 4 - 20;
         gridLayoutGroup.cellSize = new Vector2(cellSize, cellSize);
-        PopulateGrid(sprites);
+        PopulateGrid(skins);
     }
 
-    public void PopulateGrid(List<Sprite> spriteList)
+    public void PopulateGrid(List<SkinData> spriteList)
     {
         SpriteRenderer squareSpriteRenderer = Square.GetComponent<SpriteRenderer>();
 
-        foreach (Sprite sprite in spriteList)
+        foreach (SkinData skin in spriteList)
         {
+
             GameObject cell = Instantiate(Skin, gridParent);
             string spriteName = PlayerPrefs.GetString("Skin");
             if (spriteName == "")
             {
                 spriteName = "Default Skin";
             }
-            if(sprite.name == spriteName)
+            if(skin.sprite.name == spriteName)
                 currentSelectedCell = cell;
 
-            Image imageComponent = cell.GetComponent<Image>();
+            GameObject cellImageChild = cell.transform.Find("Image").gameObject;
+            GameObject Bg = cell.transform.Find("BG").gameObject;
+
+
+            Image imageComponent = cellImageChild.GetComponent<Image>();
             Button buttonComponent = cell.GetComponent<Button>();
 
             if (imageComponent != null)
-                imageComponent.sprite = sprite;
+                imageComponent.sprite = skin.sprite;
+
+            switch (skin.rarity)
+            {
+                case "C": // Common
+                    Bg.GetComponent<Image>().color = new Color32(192, 192, 192, 100);
+                    break;
+                case "R": // Rare
+                    Bg.GetComponent<Image>().color = new Color32(0, 189, 41, 100);
+                    break;
+                case "SR": // Super Rare
+                    Bg.GetComponent<Image>().color = new Color32(0, 195, 255, 100);
+                    break;
+                case "E": // Epic
+                    Bg.GetComponent<Image>().color = new Color32(255, 45, 180, 100);
+                    break;
+                case "L": // Legendary
+                    Bg.GetComponent<Image>().color = new Color32(255, 180, 25, 150);
+                    break;
+                default:
+                    Bg.GetComponent<Image>().color = new Color32(0, 0, 0, 0);
+                    break;
+            }
 
 
             // Configure SelectedSign
@@ -116,4 +145,11 @@ public class SkinGridScript : MonoBehaviour
         GameScreen.SetActive(false);
         Square.SetActive(false);
     }
+}
+
+[System.Serializable]
+public class SkinData
+{
+    public Sprite sprite;
+    public string rarity;
 }
