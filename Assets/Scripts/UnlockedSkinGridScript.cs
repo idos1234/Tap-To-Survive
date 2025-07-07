@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SkinGridScript : MonoBehaviour
+public class UnlockedSkinGridScript : MonoBehaviour
 {
     public GameObject Skin;
     public Transform gridParent;
@@ -14,32 +16,58 @@ public class SkinGridScript : MonoBehaviour
     public GameObject ListScreen;
     public GameObject GameScreen;
     public GameObject Square;
-    
+
+    private List<SkinData> UnlockedSkins;
+
     private GameObject currentSelectedCell = null;
     private int cellSize;
 
     void Start()
     {
         ListScreen.SetActive(false);
+        GetUnlockedSkins();
 
         int size;
-        if(Screen.width > Screen.height)
+        if (Screen.width > Screen.height)
         {
             size = Screen.height;
-        } else
+        }
+        else
         {
             size = Screen.width;
         }
         cellSize = (size - 40) / 4 - 20;
         gridLayoutGroup.cellSize = new Vector2(cellSize, cellSize);
-        PopulateGrid(skins);
+        PopulateGrid();
     }
 
-    public void PopulateGrid(List<SkinData> spriteList)
+    private void GetUnlockedSkins()
+    {
+        UnlockedSkins = new List<SkinData> ();
+        if(PlayerPrefs.GetString("Default Skin Status") == "")
+        {
+            PlayerPrefs.SetString("Default Skin Status", "On");
+
+            for (int i = 1; i < skins.Count; ++i)
+            {
+                PlayerPrefs.SetString($"{skins[i].sprite.name} Status", "Off");
+            }
+        }
+
+        for (int i = 0; i < skins.Count; ++i)
+        {
+            if (PlayerPrefs.GetString($"{skins[i].sprite.name} Status") == "On")
+            {
+                UnlockedSkins.Add(skins[i]);
+            }
+        }
+    }
+
+    public void PopulateGrid()
     {
         SpriteRenderer squareSpriteRenderer = Square.GetComponent<SpriteRenderer>();
 
-        foreach (SkinData skin in spriteList)
+        foreach (SkinData skin in UnlockedSkins)
         {
 
             GameObject cell = Instantiate(Skin, gridParent);
@@ -48,7 +76,7 @@ public class SkinGridScript : MonoBehaviour
             {
                 spriteName = "Default Skin";
             }
-            if(skin.sprite.name == spriteName)
+            if (skin.sprite.name == spriteName)
                 currentSelectedCell = cell;
 
             GameObject cellImageChild = cell.transform.Find("Image").gameObject;
@@ -63,19 +91,19 @@ public class SkinGridScript : MonoBehaviour
 
             switch (skin.rarity)
             {
-                case "C": // Common
+                case Rarity.Common: // Common
                     Bg.GetComponent<Image>().color = new Color32(192, 192, 192, 100);
                     break;
-                case "R": // Rare
+                case Rarity.Rare: // Rare
                     Bg.GetComponent<Image>().color = new Color32(0, 189, 41, 100);
                     break;
-                case "SR": // Super Rare
+                case Rarity.SuperRare: // Super Rare
                     Bg.GetComponent<Image>().color = new Color32(0, 195, 255, 100);
                     break;
-                case "E": // Epic
+                case Rarity.Epic: // Epic
                     Bg.GetComponent<Image>().color = new Color32(255, 45, 180, 100);
                     break;
-                case "L": // Legendary
+                case Rarity.Legendary: // Legendary
                     Bg.GetComponent<Image>().color = new Color32(255, 180, 25, 150);
                     break;
                 default:
@@ -140,16 +168,19 @@ public class SkinGridScript : MonoBehaviour
         Square.SetActive(true);
     }
 
-    public void Open() {
+    public void Open()
+    {
         ListScreen.SetActive(true);
         GameScreen.SetActive(false);
         Square.SetActive(false);
     }
 }
 
+public enum Rarity { Common, Rare, SuperRare, Epic, Legendary }
+
 [System.Serializable]
 public class SkinData
 {
     public Sprite sprite;
-    public string rarity;
+    public Rarity rarity;
 }
