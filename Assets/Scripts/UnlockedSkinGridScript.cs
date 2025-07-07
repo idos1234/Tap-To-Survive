@@ -1,58 +1,115 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SkinGridScript : MonoBehaviour
+public class UnlockedSkinGridScript : MonoBehaviour
 {
     public GameObject Skin;
     public Transform gridParent;
-    public List<Sprite> sprites;
+    public List<SkinData> skins;
     public GridLayoutGroup gridLayoutGroup;
     public GameObject ListScreen;
     public GameObject GameScreen;
     public GameObject Square;
-    
+
+    private List<SkinData> UnlockedSkins;
+
     private GameObject currentSelectedCell = null;
     private int cellSize;
 
     void Start()
     {
         ListScreen.SetActive(false);
+        GetUnlockedSkins();
 
         int size;
-        if(Screen.width > Screen.height)
+        if (Screen.width > Screen.height)
         {
             size = Screen.height;
-        } else
+        }
+        else
         {
             size = Screen.width;
         }
         cellSize = (size - 40) / 4 - 20;
         gridLayoutGroup.cellSize = new Vector2(cellSize, cellSize);
-        PopulateGrid(sprites);
+        PopulateGrid();
     }
 
-    public void PopulateGrid(List<Sprite> spriteList)
+    private void GetUnlockedSkins()
+    {
+        UnlockedSkins = new List<SkinData> ();
+        if(PlayerPrefs.GetString("Default Skin Status") == "")
+        {
+            PlayerPrefs.SetString("Default Skin Status", "On");
+
+            for (int i = 1; i < skins.Count; ++i)
+            {
+                PlayerPrefs.SetString($"{skins[i].sprite.name} Status", "Off");
+            }
+        }
+
+        for (int i = 0; i < skins.Count; ++i)
+        {
+            if (PlayerPrefs.GetString($"{skins[i].sprite.name} Status") == "On")
+            {
+                UnlockedSkins.Add(skins[i]);
+            }
+        }
+    }
+
+    public void PopulateGrid()
     {
         SpriteRenderer squareSpriteRenderer = Square.GetComponent<SpriteRenderer>();
 
-        foreach (Sprite sprite in spriteList)
+        foreach (SkinData skin in UnlockedSkins)
         {
+
             GameObject cell = Instantiate(Skin, gridParent);
             string spriteName = PlayerPrefs.GetString("Skin");
             if (spriteName == "")
             {
                 spriteName = "Default Skin";
             }
-            if(sprite.name == spriteName)
+            if (skin.sprite.name == spriteName)
                 currentSelectedCell = cell;
 
-            Image imageComponent = cell.GetComponent<Image>();
+            GameObject cellImageChild = cell.transform.Find("Image").gameObject;
+            GameObject Bg = cell.transform.Find("BG").gameObject;
+
+
+            Image imageComponent = cellImageChild.GetComponent<Image>();
             Button buttonComponent = cell.GetComponent<Button>();
 
             if (imageComponent != null)
-                imageComponent.sprite = sprite;
+                imageComponent.sprite = skin.sprite;
+
+            switch (skin.rarity)
+            {
+                case Rarity.Common: // Common
+                    Bg.GetComponent<Image>().color = new Color32(192, 192, 192, 100);
+                    break;
+                case Rarity.Rare: // Rare
+                    Bg.GetComponent<Image>().color = new Color32(0, 189, 41, 100);
+                    break;
+                case Rarity.SuperRare: // Super Rare
+                    Bg.GetComponent<Image>().color = new Color32(0, 195, 255, 100);
+                    break;
+                case Rarity.Epic: // Epic
+                    Bg.GetComponent<Image>().color = new Color32(255, 45, 180, 100);
+                    break;
+                case Rarity.Legendary: // Legendary
+                    Bg.GetComponent<Image>().color = new Color32(255, 180, 25, 150);
+                    break;
+                default:
+                    Bg.GetComponent<Image>().color = new Color32(0, 0, 0, 0);
+                    break;
+            }
 
 
             // Configure SelectedSign
@@ -111,9 +168,19 @@ public class SkinGridScript : MonoBehaviour
         Square.SetActive(true);
     }
 
-    public void Open() {
+    public void Open()
+    {
         ListScreen.SetActive(true);
         GameScreen.SetActive(false);
         Square.SetActive(false);
     }
+}
+
+public enum Rarity { Common, Rare, SuperRare, Epic, Legendary }
+
+[System.Serializable]
+public class SkinData
+{
+    public Sprite sprite;
+    public Rarity rarity;
 }
