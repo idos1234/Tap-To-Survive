@@ -8,6 +8,9 @@ TagManager:
   - Sound
   - Cube
   - Counting
+  - Unlocked Grid
+  - Locked Grid
+  - HomeCoin
   layers:
   - Default
   - TransparentFX
