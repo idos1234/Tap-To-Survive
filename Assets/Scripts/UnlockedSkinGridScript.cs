@@ -22,8 +22,12 @@ public class UnlockedSkinGridScript : MonoBehaviour
     private GameObject currentSelectedCell = null;
     private int cellSize;
 
+    private SpriteRenderer squareSpriteRenderer;
+
     void Start()
     {
+        squareSpriteRenderer = Square.GetComponent<SpriteRenderer>();
+
         ListScreen.SetActive(false);
         GetUnlockedSkins();
 
@@ -65,100 +69,105 @@ public class UnlockedSkinGridScript : MonoBehaviour
 
     public void PopulateGrid()
     {
-        SpriteRenderer squareSpriteRenderer = Square.GetComponent<SpriteRenderer>();
-
         foreach (SkinData skin in UnlockedSkins)
         {
 
-            GameObject cell = Instantiate(Skin, gridParent);
-            string spriteName = PlayerPrefs.GetString("Skin");
-            if (spriteName == "")
-            {
-                spriteName = "Default Skin";
-            }
-            if (skin.sprite.name == spriteName)
-                currentSelectedCell = cell;
-
-            GameObject cellImageChild = cell.transform.Find("Image").gameObject;
-            GameObject Bg = cell.transform.Find("BG").gameObject;
-
-
-            Image imageComponent = cellImageChild.GetComponent<Image>();
-            Button buttonComponent = cell.GetComponent<Button>();
-
-            if (imageComponent != null)
-                imageComponent.sprite = skin.sprite;
-
-            switch (skin.rarity)
-            {
-                case Rarity.Common: // Common
-                    Bg.GetComponent<Image>().color = new Color32(192, 192, 192, 100);
-                    break;
-                case Rarity.Rare: // Rare
-                    Bg.GetComponent<Image>().color = new Color32(0, 189, 41, 100);
-                    break;
-                case Rarity.SuperRare: // Super Rare
-                    Bg.GetComponent<Image>().color = new Color32(0, 195, 255, 100);
-                    break;
-                case Rarity.Epic: // Epic
-                    Bg.GetComponent<Image>().color = new Color32(255, 45, 180, 100);
-                    break;
-                case Rarity.Legendary: // Legendary
-                    Bg.GetComponent<Image>().color = new Color32(255, 180, 25, 150);
-                    break;
-                default:
-                    Bg.GetComponent<Image>().color = new Color32(0, 0, 0, 0);
-                    break;
-            }
-
-
-            // Configure SelectedSign
-            Transform signTransform = cell.transform.Find("SelectedSign");
-
-            if (signTransform != null)
-            {
-                RectTransform signRect = signTransform.GetComponent<RectTransform>();
-                if (signRect != null)
-                {
-                    float signHeight = cellSize / 4f;
-                    gridLayoutGroup.spacing = new Vector2(10, signHeight);
-                    signRect.sizeDelta = new Vector2(signRect.sizeDelta.x, signHeight);
-                    signRect.anchoredPosition = new Vector2(0, 0); // Anchored to bottom center
-                }
-
-                Text text = signTransform.GetComponentInChildren<Text>();
-                if (text != null)
-                {
-                    text.fontSize = Mathf.RoundToInt(cellSize / 5f); // You can tweak the divisor for better fit
-                    text.rectTransform.offsetMin = new Vector2(10, 0);
-                }
-
-                signTransform.gameObject.SetActive(false); // Hide initially
-            }
-
-            buttonComponent.onClick.AddListener(() => {
-                // Update main square
-                squareSpriteRenderer.sprite = imageComponent.sprite;
-                PlayerPrefs.SetString("Skin", squareSpriteRenderer.sprite.name);
-
-                // Hide "Selected" on previous cell
-                if (currentSelectedCell != null)
-                {
-                    Transform oldSign = currentSelectedCell.transform.Find("SelectedSign");
-                    if (oldSign != null) oldSign.gameObject.SetActive(false);
-                }
-
-                // Show "Selected" on this cell
-                Transform newSign = cell.transform.Find("SelectedSign");
-                if (newSign != null) newSign.gameObject.SetActive(true);
-
-                // Update current selected
-                currentSelectedCell = cell;
-            });
+            AddToGrid(skin);
+            
         }
 
         //set 'selected' sign
         currentSelectedCell.transform.Find("SelectedSign").gameObject.SetActive(true);
+    }
+
+    public void AddToGrid(SkinData skin)
+    {
+        GameObject cell = Instantiate(Skin, gridParent);
+
+        string spriteName = PlayerPrefs.GetString("Skin");
+        if (spriteName == "")
+        {
+            spriteName = "Default Skin";
+        }
+        if (skin.sprite.name == spriteName)
+            currentSelectedCell = cell;
+
+        GameObject cellImageChild = cell.transform.Find("Image").gameObject;
+        GameObject Bg = cell.transform.Find("BG").gameObject;
+
+
+        Image imageComponent = cellImageChild.GetComponent<Image>();
+        Button buttonComponent = cell.GetComponent<Button>();
+
+        if (imageComponent != null)
+            imageComponent.sprite = skin.sprite;
+
+        switch (skin.rarity)
+        {
+            case Rarity.Common: // Common
+                Bg.GetComponent<Image>().color = new Color32(192, 192, 192, 100);
+                break;
+            case Rarity.Rare: // Rare
+                Bg.GetComponent<Image>().color = new Color32(0, 189, 41, 100);
+                break;
+            case Rarity.SuperRare: // Super Rare
+                Bg.GetComponent<Image>().color = new Color32(0, 195, 255, 100);
+                break;
+            case Rarity.Epic: // Epic
+                Bg.GetComponent<Image>().color = new Color32(255, 45, 180, 100);
+                break;
+            case Rarity.Legendary: // Legendary
+                Bg.GetComponent<Image>().color = new Color32(255, 180, 25, 150);
+                break;
+            default:
+                Bg.GetComponent<Image>().color = new Color32(0, 0, 0, 0);
+                break;
+        }
+
+
+        // Configure SelectedSign
+        Transform signTransform = cell.transform.Find("SelectedSign");
+
+        if (signTransform != null)
+        {
+            RectTransform signRect = signTransform.GetComponent<RectTransform>();
+            if (signRect != null)
+            {
+                float signHeight = cellSize / 4f;
+                gridLayoutGroup.spacing = new Vector2(10, signHeight);
+                signRect.sizeDelta = new Vector2(signRect.sizeDelta.x, signHeight);
+                signRect.anchoredPosition = new Vector2(0, 0); // Anchored to bottom center
+            }
+
+            Text text = signTransform.GetComponentInChildren<Text>();
+            if (text != null)
+            {
+                text.fontSize = Mathf.RoundToInt(cellSize / 5f); // You can tweak the divisor for better fit
+                text.rectTransform.offsetMin = new Vector2(10, 0);
+            }
+
+            signTransform.gameObject.SetActive(false); // Hide initially
+        }
+
+        buttonComponent.onClick.AddListener(() => {
+            // Update main square
+            squareSpriteRenderer.sprite = imageComponent.sprite;
+            PlayerPrefs.SetString("Skin", squareSpriteRenderer.sprite.name);
+
+            // Hide "Selected" on previous cell
+            if (currentSelectedCell != null)
+            {
+                Transform oldSign = currentSelectedCell.transform.Find("SelectedSign");
+                if (oldSign != null) oldSign.gameObject.SetActive(false);
+            }
+
+            // Show "Selected" on this cell
+            Transform newSign = cell.transform.Find("SelectedSign");
+            if (newSign != null) newSign.gameObject.SetActive(true);
+
+            // Update current selected
+            currentSelectedCell = cell;
+        });
     }
 
     public void Close()
@@ -183,4 +192,5 @@ public class SkinData
 {
     public Sprite sprite;
     public Rarity rarity;
+    public int price;
 }
